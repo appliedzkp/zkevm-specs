@@ -58,6 +58,7 @@ class Tag(IntEnum):
     TxAccessListAccountStorage = 9
     TxLog = 10
     TxReceipt = 11
+    TransientStorage = 12
 
 
 class Row(NamedTuple):
@@ -609,6 +610,8 @@ def check_state_row(row: Row, row_prev: Row, row_next: Row, tables: Tables):
         check_tx_receipt(row, row_prev)
     elif row.tag() == Tag.TxLog:
         check_tx_log(row, row_prev)
+    elif row.tag() == Tag.AccountTransientStorage:
+        check_transient_storage(row, row_prev)
     else:
         raise ValueError("Unreachable")
 
@@ -816,6 +819,20 @@ class TxReceiptOp(Operation):
     """
 
     def __new__(self, rw_counter: int, rw: RW, tx_id: int, field_tag: TxReceiptFieldTag, value: FQ):
+        # fmt: off
+        return super().__new__(self, rw_counter, rw,
+                U256(Tag.TxReceipt), U256(tx_id),  U256(0), U256(field_tag), U256(0), # keys
+                WordOrValue(value), WordOrValue(FQ(0)), # values
+                FQ(1)) # lexicographic_ordering_selector
+        # fmt: on
+
+
+class TransientStorageOp(Operation):
+    """
+    TransientStorageOp Operation
+    """
+
+    def __new__(self, rw_counter: int, rw: RW, tx_id: int, addr: U160, key: U256, value: FQ):
         # fmt: off
         return super().__new__(self, rw_counter, rw,
                 U256(Tag.TxReceipt), U256(tx_id),  U256(0), U256(field_tag), U256(0), # keys

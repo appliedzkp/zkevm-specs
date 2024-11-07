@@ -76,6 +76,10 @@ to not be in the table.
 
 ### Transient Storage
 - 5.0. `field_tag` is 0
+- 5.1. `initial_value` is 0
+- 5.2. `value` is 0 if first access and `READ`
+- 5.3. `value` column at previous rotation equals `value_prev` at current rotation
+- 5.4. `state root` is the same
 
 ### Call Context
 - 6.0. `address` and `storage_key` are 0
